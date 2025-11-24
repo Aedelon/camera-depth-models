@@ -26,9 +26,9 @@ echo ""
 echo "1. Copying rgbddepth package..."
 if [ -d "$CDM_PATH/rgbddepth" ]; then
     rsync -av --exclude="__pycache__" --exclude="*.pyc" "$CDM_PATH/rgbddepth/" ./rgbddepth/
-    echo "✓ Package copied"
+    echo "OK Package copied"
 else
-    echo "✗ rgbddepth/ not found in source"
+    echo "NO rgbddepth/ not found in source"
     exit 1
 fi
 
@@ -37,9 +37,9 @@ echo ""
 echo "2. Copying example data..."
 if [ -d "$CDM_PATH/example_data" ]; then
     rsync -av "$CDM_PATH/example_data/" ./example_data/
-    echo "✓ Example data copied"
+    echo "OK Example data copied"
 else
-    echo "⚠ No example_data/ found (optional)"
+    echo "WARN No example_data/ found (optional)"
 fi
 
 # Copy documentation
@@ -50,9 +50,9 @@ mkdir -p docs
 for doc in OPTIMIZATIONS.md CHEATSHEET.md; do
     if [ -f "$CDM_PATH/$doc" ]; then
         cp "$CDM_PATH/$doc" ./docs/
-        echo "✓ Copied $doc"
+        echo "OK Copied $doc"
     else
-        echo "⚠ $doc not found (optional)"
+        echo "WARN $doc not found (optional)"
     fi
 done
 
@@ -64,24 +64,24 @@ mkdir -p scripts
 # Copy infer.py if exists
 if [ -f "$CDM_PATH/infer.py" ]; then
     cp "$CDM_PATH/infer.py" ./rgbddepth/infer.py
-    echo "✓ Copied infer.py"
+    echo "OK Copied infer.py"
 
     # Add if __name__ == "__main__" wrapper if not present
     if ! grep -q "if __name__ == .__main__.:" ./rgbddepth/infer.py; then
         echo "" >> ./rgbddepth/infer.py
         echo "if __name__ == \"__main__\":" >> ./rgbddepth/infer.py
         echo "    run_inference()" >> ./rgbddepth/infer.py
-        echo "✓ Added CLI wrapper to infer.py"
+        echo "OK Added CLI wrapper to infer.py"
     fi
 else
-    echo "⚠ infer.py not found"
+    echo "WARN infer.py not found"
 fi
 
 # Copy other useful scripts
 for script in example_usage.py verify_installation.py test_optimizations.py; do
     if [ -f "$CDM_PATH/$script" ]; then
         cp "$CDM_PATH/$script" ./scripts/
-        echo "✓ Copied $script"
+        echo "OK Copied $script"
     fi
 done
 
@@ -100,9 +100,9 @@ required_files=(
 all_good=true
 for file in "${required_files[@]}"; do
     if [ -f "$file" ]; then
-        echo "✓ $file"
+        echo "OK $file"
     else
-        echo "✗ $file (missing!)"
+        echo "NO $file (missing!)"
         all_good=false
     fi
 done
@@ -113,13 +113,13 @@ echo "6. Updating CLI integration..."
 if [ -f "rgbddepth/cli.py" ] && [ -f "rgbddepth/infer.py" ]; then
     # Update the import in cli.py to point to the migrated infer
     sed -i.bak 's/from rgbddepth.infer import run_inference/from rgbddepth.infer import main as run_inference/' rgbddepth/cli.py 2>/dev/null || true
-    echo "✓ CLI updated"
+    echo "OK CLI updated"
 fi
 
 echo ""
 if [ "$all_good" = true ]; then
     echo "=========================================="
-    echo "✓ Migration complete!"
+    echo "OK Migration complete!"
     echo "=========================================="
     echo ""
     echo "Next steps:"
@@ -130,7 +130,7 @@ if [ "$all_good" = true ]; then
     echo ""
 else
     echo "=========================================="
-    echo "⚠ Migration completed with warnings"
+    echo "WARN Migration completed with warnings"
     echo "=========================================="
     echo "Some files are missing. Check the output above."
 fi

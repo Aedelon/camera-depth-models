@@ -26,7 +26,7 @@
 
   Sur https://github.com/ton-username/camera-depth-models :
   → Settings → Actions → General
-  → Allow all actions ✓
+  → Allow all actions OK
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  ÉTAPE 3 : Créer la release v1.0.2 (3 min)                                 │
@@ -46,7 +46,7 @@
 
 ================================================================================
 
-📚 DOCUMENTATION :
+DOCS DOCUMENTATION :
 
   • Démarrage rapide    → QUICKSTART.md
   • Guide complet       → SETUP_GUIDE.md
@@ -56,14 +56,14 @@
 
 ================================================================================
 
-✅ CE QUI FONCTIONNE DÉJÀ :
+OK CE QUI FONCTIONNE DÉJÀ :
 
-  ✓ Installation : pip install -e .
-  ✓ CLI : cdm-infer, cdm-download
-  ✓ Imports Python : from rgbddepth import RGBDDepth, OptimizationConfig
-  ✓ Tests : pytest tests/ -v
-  ✓ CI/CD configuré
-  ✓ Documentation complète
+  OK Installation : pip install -e .
+  OK CLI : cdm-infer, cdm-download
+  OK Imports Python : from rgbddepth import RGBDDepth, OptimizationConfig
+  OK Tests : pytest tests/ -v
+  OK CI/CD configuré
+  OK Documentation complète
 
 ================================================================================
 

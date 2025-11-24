@@ -34,7 +34,7 @@ jobs:
 
     - name: Test imports
       run: |
-        python -c "from rgbddepth import RGBDDepth, OptimizationConfig; print('✓ Imports successful')"
+        python -c "from rgbddepth import RGBDDepth, OptimizationConfig; print('Imports successful')"
 
   lint:
     runs-on: ubuntu-latest

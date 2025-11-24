@@ -2,7 +2,7 @@
 
 Quick reference for using optimized CDM inference.
 
-## 🚀 Quick Commands
+## FAST Quick Commands
 
 ### Auto-optimized (recommended)
 ```bash
@@ -201,7 +201,7 @@ pip install -e .[dev]
 pip install -e .[all]
 ```
 
-## ⚠️ Troubleshooting
+## WARN Troubleshooting
 
 ### xformers not found
 ```bash
@@ -264,7 +264,7 @@ pip install xformers
 3. Reduce `--input-size`
 4. Use smaller encoder (vits < vitb < vitl)
 
-## 📚 Documentation Links
+## DOCS Documentation Links
 
 - **Quick Start**: `QUICK_START_OPTIMIZATIONS.md`
 - **Full Docs**: `OPTIMIZATIONS.md`
@@ -272,7 +272,7 @@ pip install xformers
 - **Examples**: `example_usage.py`
 - **Tests**: `test_optimizations.py`
 
-## 🚀 One-Liners
+## FAST One-Liners
 
 ### Quick test
 ```bash
@@ -343,10 +343,10 @@ for rgb_path, depth_path in zip(rgb_images, depth_images):
 
 | Device | Backend | Compile | Precision | Speed | Memory |
 |--------|---------|---------|-----------|-------|--------|
-| CUDA | xformers | ✓ | fp16 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| CUDA | torch | ✓ | fp16 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| MPS | manual | ✗ | fp32 | ⭐⭐⭐ | ⭐⭐⭐ |
-| CPU | torch | ✗ | fp32 | ⭐⭐ | ⭐⭐ |
+| CUDA | xformers | OK | fp16 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| CUDA | torch | OK | fp16 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| MPS | manual | NO | fp32 | ⭐⭐⭐ | ⭐⭐⭐ |
+| CPU | torch | NO | fp32 | ⭐⭐ | ⭐⭐ |
 
 ---
 

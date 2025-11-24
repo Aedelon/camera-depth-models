@@ -226,7 +226,7 @@ def load_model(args):
 
     model.load_state_dict(states, strict=False)
     model.eval()
-    print(f"✓ Model loaded: {args.encoder} from {args.model_path}")
+    print(f"Model loaded: {args.encoder} from {args.model_path}")
     return model
 
 
@@ -339,7 +339,7 @@ def inference(args):
     artifact = create_visualization(rgb_src, depth_low_res, pred, image_min, image_max)
 
     Image.fromarray(artifact).save(args.output)
-    print(f"✓ Output saved to: {args.output}")
+    print(f"Output saved to: {args.output}")
 
 
 def main():

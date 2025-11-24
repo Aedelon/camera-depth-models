@@ -24,7 +24,7 @@ if ! python3 -c "import rgbddepth" 2>/dev/null; then
     echo ""
     echo "Installing camera-depth-models package..."
     pip install -e . -q
-    echo "✓ Package installed"
+    echo "OK Package installed"
 fi
 
 # Create models directory
@@ -50,10 +50,10 @@ path = hf_hub_download(
 )
 # Copy to predictable location
 shutil.copy(path, './models/d435_model.pth')
-print('✓ Model downloaded')
+print('OK Model downloaded')
 "
     else
-        echo "⚠ huggingface-hub not installed. Skipping download."
+        echo "WARN huggingface-hub not installed. Skipping download."
         echo "  Install with: pip install huggingface-hub"
         echo "  Or use: cdm-download --camera d435"
         echo ""
@@ -61,7 +61,7 @@ print('✓ Model downloaded')
         touch models/d435_model.pth  # Placeholder
     fi
 else
-    echo "✓ Model already downloaded"
+    echo "OK Model already downloaded"
 fi
 
 # Check example data exists
@@ -88,7 +88,7 @@ if [ -f "models/d435_model.pth" ] && [ -s "models/d435_model.pth" ]; then
 
     echo ""
     echo "=========================================="
-    echo "✓ Quickstart complete!"
+    echo "OK Quickstart complete!"
     echo "=========================================="
     echo ""
     echo "Output saved to: quickstart_result.png"

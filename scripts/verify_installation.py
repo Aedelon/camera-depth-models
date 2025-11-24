@@ -6,7 +6,14 @@
 Quick verification script to check if optimizations are properly installed.
 """
 
+import os
 import sys
+from pathlib import Path
+
+# Ensure Matplotlib writes cache in a writable directory (Windows CI safety)
+_mpl_dir = Path.home() / ".cache" / "matplotlib"
+_mpl_dir.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", str(_mpl_dir))
 
 
 def check_imports():
@@ -34,18 +41,18 @@ def check_imports():
     for module, name in required.items():
         try:
             __import__(module)
-            print(f"✓ {name:<30} installed")
+            print(f"OK {name:<30} installed")
         except ImportError:
-            print(f"✗ {name:<30} MISSING")
+            print(f"FAIL {name:<30} MISSING")
             all_ok = False
 
     # Check optional
     for module, name in optional.items():
         try:
             __import__(module)
-            print(f"✓ {name:<30} installed")
+            print(f"OK {name:<30} installed")
         except ImportError:
-            print(f"⚠ {name:<30} not installed (optional)")
+            print(f"WARN {name:<30} not installed (optional)")
 
     return all_ok
 
@@ -62,21 +69,21 @@ def check_devices():
 
     # CUDA
     if torch.cuda.is_available():
-        print("✓ CUDA available")
+        print("OK CUDA available")
         print(f"  - CUDA version: {torch.version.cuda}")
         print(f"  - Device: {torch.cuda.get_device_name(0)}")
         print(f"  - Device count: {torch.cuda.device_count()}")
     else:
-        print("✗ CUDA not available")
+        print("FAIL CUDA not available")
 
     # MPS
     if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-        print("✓ MPS available (Apple Silicon)")
+        print("OK MPS available (Apple Silicon)")
     else:
-        print("✗ MPS not available")
+        print("FAIL MPS not available")
 
     # CPU
-    print("✓ CPU available")
+    print("OK CPU available")
 
     # Determine best device
     if torch.cuda.is_available():
@@ -99,25 +106,25 @@ def check_optimizations():
     try:
         from rgbddepth.optimization_config import OptimizationConfig
 
-        print("✓ OptimizationConfig imported")
+        print("OK OptimizationConfig imported")
     except ImportError as e:
-        print(f"✗ Failed to import OptimizationConfig: {e}")
+        print(f"FAIL Failed to import OptimizationConfig: {e}")
         return False
 
     try:
         from rgbddepth.attention import AdaptiveCrossAttention
 
-        print("✓ AdaptiveCrossAttention imported")
+        print("OK AdaptiveCrossAttention imported")
     except ImportError as e:
-        print(f"✗ Failed to import AdaptiveCrossAttention: {e}")
+        print(f"FAIL Failed to import AdaptiveCrossAttention: {e}")
         return False
 
     try:
         from rgbddepth.dpt import RGBDDepth
 
-        print("✓ RGBDDepth imported")
+        print("OK RGBDDepth imported")
     except ImportError as e:
-        print(f"✗ Failed to import RGBDDepth: {e}")
+        print(f"FAIL Failed to import RGBDDepth: {e}")
         return False
 
     return True
@@ -134,14 +141,14 @@ def check_config_creation(device):
 
         # Test auto config
         config = OptimizationConfig(device="auto")
-        print("✓ Auto config created")
+        print("OK Auto config created")
         print(f"  - Detected device: {config.device}")
         print(f"  - Attention backend: {config.attention_backend}")
         print(f"  - Mixed precision: {config.mixed_precision}")
 
         # Test device-specific config
         config = OptimizationConfig(device=device)
-        print(f"\n✓ Device-specific config created ({device})")
+        print(f"\nOK Device-specific config created ({device})")
         print(f"  - Attention backend: {config.attention_backend}")
         print(f"  - Use compile: {config.use_compile}")
         print(f"  - Use channels_last: {config.use_channels_last}")
@@ -149,7 +156,7 @@ def check_config_creation(device):
 
         return True
     except Exception as e:
-        print(f"✗ Failed to create config: {e}")
+        print(f"FAIL Failed to create config: {e}")
         import traceback
 
         traceback.print_exc()
@@ -174,13 +181,13 @@ def check_model_creation(device):
             encoder="vits", features=64, out_channels=[48, 96, 192, 384], config=config
         )
 
-        print("✓ Model created successfully")
+        print("OK Model created successfully")
         print(f"  - Device: {config.device}")
         print(f"  - Dtype: {config.dtype}")
 
         return True
     except Exception as e:
-        print(f"✗ Failed to create model: {e}")
+        print(f"FAIL Failed to create model: {e}")
         import traceback
 
         traceback.print_exc()
@@ -208,34 +215,33 @@ def check_attention_backends(device):
             attention = create_cross_attention(
                 embed_dim=384, num_heads=6, backend=backend, device=device
             )
-            print(f"✓ {backend:<15} backend available")
+            print(f"OK {backend:<15} backend available")
             results[backend] = True
         except Exception as e:
-            print(f"✗ {backend:<15} backend failed: {e}")
+            print(f"FAIL {backend:<15} backend failed: {e}")
             results[backend] = False
 
     return results
 
 
 def check_scripts():
-    """Check if scripts are available."""
+    """Check if expected scripts exist (search common locations)."""
     print("\n" + "=" * 60)
     print("Checking scripts...")
     print("=" * 60)
 
-    import os
-
-    scripts = {
-        "infer.py": "Optimized inference script",
-        "test_optimizations.py": "Test suite",
-        "example_usage.py": "Usage examples",
+    candidates = {
+        "infer.py": ["infer.py", "rgbddepth/infer.py"],
+        "test_optimizations.py": ["scripts/test_optimizations.py"],
+        "example_usage.py": ["scripts/example_usage.py"],
     }
 
-    for script, description in scripts.items():
-        if os.path.exists(script):
-            print(f"✓ {script:<25} - {description}")
+    for name, paths in candidates.items():
+        found = next((p for p in paths if os.path.exists(p)), None)
+        if found:
+            print(f"OK {found:<25} - {name}")
         else:
-            print(f"✗ {script:<25} - MISSING")
+            print(f"FAIL {name:<25} - MISSING")
 
 
 def print_recommendations(device, backends):
@@ -245,7 +251,7 @@ def print_recommendations(device, backends):
     print("=" * 60)
 
     if device == "cuda":
-        print("\n🚀 You have a CUDA GPU!")
+        print("\n You have a CUDA GPU!")
         if backends.get("xformers", False):
             print("\nRecommended command:")
             print("python infer.py \\")
@@ -256,7 +262,7 @@ def print_recommendations(device, backends):
             print("    [other args...]")
             print("\nExpected speedup: 3-5x")
         else:
-            print("\n⚠️  xformers not installed. Install for best performance:")
+            print("\nWARN  xformers not installed. Install for best performance:")
             print("pip install xformers")
             print("\nCurrent best command:")
             print("python infer.py \\")
@@ -266,7 +272,7 @@ def print_recommendations(device, backends):
             print("    [other args...]")
 
     elif device == "mps":
-        print("\n🍎 You have Apple Silicon!")
+        print("\n You have Apple Silicon!")
         print("\nRecommended command:")
         print("python infer.py \\")
         print("    --device mps \\")
@@ -276,7 +282,7 @@ def print_recommendations(device, backends):
         print("\nExpected speedup: 2-3x")
 
     else:  # CPU
-        print("\n💻 Using CPU")
+        print("\n Using CPU")
         print("\nRecommended command:")
         print("python infer.py \\")
         print("    --device cpu \\")
@@ -286,7 +292,7 @@ def print_recommendations(device, backends):
         print("    [other args...]")
         print("\nExpected speedup: 1.5-2x")
 
-    print("\n📚 Next steps:")
+    print("\n Next steps:")
     print("1. Read quick start: QUICK_START_OPTIMIZATIONS.md")
     print("2. Run examples: python example_usage.py")
     print("3. Run tests: python test_optimizations.py")
@@ -302,7 +308,7 @@ def main():
     # Check imports
     imports_ok = check_imports()
     if not imports_ok:
-        print("\n❌ Some required packages are missing!")
+        print("\nFAIL Some required packages are missing!")
         print("Install with: pip install -e .[optimizations]")
         return False
 
@@ -312,21 +318,21 @@ def main():
     # Check optimization modules
     optimizations_ok = check_optimizations()
     if not optimizations_ok:
-        print("\n❌ Optimization modules not properly installed!")
+        print("\nFAIL Optimization modules not properly installed!")
         print("Make sure you ran: pip install -e .")
         return False
 
     # Test config creation
     config_ok = check_config_creation(device)
     if not config_ok:
-        print("\n❌ Failed to create configuration!")
+        print("\nFAIL Failed to create configuration!")
         return False
 
     # Test model creation
     model_ok = check_model_creation(device)
     if not model_ok:
         print(
-            "\n⚠️  Model creation failed, but this might be OK if you don't have a model checkpoint"
+            "\nWARN  Model creation failed, but this might be OK if you don't have a model checkpoint"
         )
 
     # Check attention backends
@@ -343,10 +349,10 @@ def main():
     print("#" * 60)
 
     if imports_ok and optimizations_ok and config_ok:
-        print("\n✅ All checks passed! Optimizations are ready to use.")
+        print("\nOK All checks passed! Optimizations are ready to use.")
         return True
     else:
-        print("\n⚠️  Some checks failed. See messages above.")
+        print("\nWARN  Some checks failed. See messages above.")
         return False
 
 

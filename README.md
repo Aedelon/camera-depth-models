@@ -7,7 +7,7 @@
 
 Camera Depth Models (CDM) provides **accurate metric depth estimation** from RGB-D sensors using Vision Transformer encoders. CDM produces clean, simulation-like depth maps from noisy real-world camera data, enabling seamless **sim-to-real transfer** for robotic manipulation tasks.
 
-## 🚀 Quick Start
+## FAST Quick Start
 
 ### Installation
 
@@ -55,13 +55,13 @@ cdm-infer \
 
 ## 📖 Features
 
-- ✅ **Automatic optimization** - Zero configuration required
-- ✅ **Metric depth estimation** - Accurate absolute depth in meters
-- ✅ **Multi-camera support** - Pre-trained for RealSense, ZED 2i, Kinect
-- ✅ **Sim-to-Real ready** - Clean depth from noisy sensor data
-- ✅ **Real-time performance** - Optimized for robot control
-- ✅ **Easy CLI** - Simple command-line tools
-- ✅ **Python API** - Flexible programmatic interface
+- OK **Automatic optimization** - Zero configuration required
+- OK **Metric depth estimation** - Accurate absolute depth in meters
+- OK **Multi-camera support** - Pre-trained for RealSense, ZED 2i, Kinect
+- OK **Sim-to-Real ready** - Clean depth from noisy sensor data
+- OK **Real-time performance** - Optimized for robot control
+- OK **Easy CLI** - Simple command-line tools
+- OK **Python API** - Flexible programmatic interface
 
 ## 🎯 Supported Cameras
 
@@ -77,7 +77,7 @@ Download with: `cdm-download --camera <model_name>`
 
 List all models: `cdm-download --list`
 
-## 💻 Python API
+## DESKTOP Python API
 
 ```python
 from rgbddepth import RGBDDepth, OptimizationConfig
@@ -166,7 +166,7 @@ CDM uses a dual-branch Vision Transformer architecture:
 
 Supported encoder sizes: `vits`, `vitb`, `vitl`, `vitg`
 
-## 📚 Documentation
+## DOCS Documentation
 
 - [OPTIMIZATIONS.md](docs/OPTIMIZATIONS.md) - Complete optimization guide
 - [CHEATSHEET.md](docs/CHEATSHEET.md) - Quick reference commands

@@ -1,6 +1,6 @@
 # TODO - Actions Immédiates
 
-## ✅ Déjà fait
+## OK Déjà fait
 - [x] Package standalone créé
 - [x] Code migré et testé
 - [x] CLI fonctionnels (cdm-infer, cdm-download)
@@ -22,22 +22,22 @@ nano GIT_SETUP.sh  # Ligne 10
 ```
 
 Le script va :
-1. ✓ Init Git
-2. ✓ Commit initial
-3. ✓ Config remote SSH (git@github.com:...)
-4. ✓ Demander de créer le repo sur https://github.com/new
-5. ✓ Push le code
-6. ✓ Créer le tag v1.0.2
+1. OK Init Git
+2. OK Commit initial
+3. OK Config remote SSH (git@github.com:...)
+4. OK Demander de créer le repo sur https://github.com/new
+5. OK Push le code
+6. OK Créer le tag v1.0.2
 
 ### 2. Configurer GitHub (2 min)
 
 Sur https://github.com/TON-USERNAME/camera-depth-models :
 
 - [ ] **Settings → Actions → General**
-  - Allow all actions ✓
+  - Allow all actions OK
 
 - [ ] **Settings → Features**
-  - Discussions ✓ (optionnel)
+  - Discussions OK (optionnel)
 
 ### 3. Créer la release (3 min)
 
@@ -76,7 +76,7 @@ git commit -m "docs: Update README to reference standalone CDM package"
 git push
 ```
 
-## 🚀 Plus tard (optionnel)
+## FAST Plus tard (optionnel)
 
 ### Publication PyPI
 
@@ -123,7 +123,7 @@ Ensuite, chaque fois que tu crées une release, le workflow `.github/workflows/p
   - `README.md` (badges et liens)
   - Ce fichier (TODO.md)
 
-## ✅ Checklist de vérification finale
+## OK Checklist de vérification finale
 
 Avant de considérer le projet terminé :
 
@@ -138,9 +138,9 @@ Avant de considérer le projet terminé :
 ## 🎯 Résultat attendu
 
 Une fois tout fait :
-- ✅ Package standalone sur GitHub
-- ✅ Installation : `pip install camera-depth-models`
-- ✅ CLI : `cdm-infer`, `cdm-download`
-- ✅ Tests automatiques
-- ✅ Documentation exhaustive
-- ✅ (Optionnel) Sur PyPI
+- OK Package standalone sur GitHub
+- OK Installation : `pip install camera-depth-models`
+- OK CLI : `cdm-infer`, `cdm-download`
+- OK Tests automatiques
+- OK Documentation exhaustive
+- OK (Optionnel) Sur PyPI

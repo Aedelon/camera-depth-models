@@ -101,7 +101,7 @@ Examples:
             cache_dir=str(output_dir),
             resume_download=True,
         )
-        print("✓ Model downloaded successfully!")
+        print("Model downloaded successfully.")
         print(f"  Path: {model_path}")
         print("\nUsage:")
         print(

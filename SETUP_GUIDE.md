@@ -74,7 +74,7 @@ source venv/bin/activate  # Linux/macOS
 pip install -e .[dev]
 
 # Vérifier l'import
-python -c "from rgbddepth import RGBDDepth, OptimizationConfig; print('✓ OK')"
+python -c "from rgbddepth import RGBDDepth, OptimizationConfig; print('OK OK')"
 
 # Lancer les tests
 pytest tests/ -v
@@ -125,12 +125,12 @@ git push origin v1.0.2
 First standalone release of Camera Depth Models, extracted from the manip-as-in-sim-suite repository.
 
 ### Features
-- ✅ Metric depth estimation from RGB-D sensors
-- ✅ Pre-trained models for RealSense, ZED 2i, Kinect
-- ✅ Automatic device-specific optimizations (CUDA/MPS/CPU)
-- ✅ CLI tools: `cdm-infer`, `cdm-download`
-- ✅ Python API with `OptimizationConfig`
-- ✅ Comprehensive tests and CI/CD
+- OK Metric depth estimation from RGB-D sensors
+- OK Pre-trained models for RealSense, ZED 2i, Kinect
+- OK Automatic device-specific optimizations (CUDA/MPS/CPU)
+- OK CLI tools: `cdm-infer`, `cdm-download`
+- OK Python API with `OptimizationConfig`
+- OK Comprehensive tests and CI/CD
 
 ### Installation
 ```bash

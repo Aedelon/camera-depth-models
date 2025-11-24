@@ -1,6 +1,6 @@
 # Migration Summary - Camera Depth Models
 
-## ✅ Migration réussie !
+## OK Migration réussie !
 
 Le package **Camera Depth Models** a été extrait avec succès de `manip-as-in-sim-suite` et configuré comme package standalone.
 
@@ -78,32 +78,32 @@ cdm-infer --encoder vitl --model-path model.pth \
 
 ## 🧪 Tests effectués
 
-### ✅ Installation
+### OK Installation
 ```bash
 pip install -e .
 # Successfully installed camera-depth-models-1.0.2
 ```
 
-### ✅ Imports Python
+### OK Imports Python
 ```python
 from rgbddepth import RGBDDepth, OptimizationConfig
-# ✓ Main imports successful
+# OK Main imports successful
 ```
 
-### ✅ CLI installés
+### OK CLI installés
 ```bash
 which cdm-infer cdm-download
 # /opt/homebrew/.../bin/cdm-infer
 # /opt/homebrew/.../bin/cdm-download
 ```
 
-### ✅ Commandes fonctionnelles
+### OK Commandes fonctionnelles
 ```bash
 cdm-download --list
-# Available Camera Depth Models: [...] ✓
+# Available Camera Depth Models: [...] OK
 
 cdm-infer --help
-# usage: cdm-infer [...] ✓
+# usage: cdm-infer [...] OK
 ```
 
 ## 📝 Prochaines étapes
@@ -209,9 +209,9 @@ Enhanced MimicGen for mobile manipulators...
 | Aspect | Ancien (dans suite) | Nouveau (standalone) |
 |--------|---------------------|----------------------|
 | **Installation** | `cd cdm && pip install -e .` | `pip install camera-depth-models` |
-| **CLI** | ❌ Manquant | ✅ `cdm-infer`, `cdm-download` |
-| **Tests** | ❌ Absents | ✅ Tests + CI multi-OS |
-| **PyPI** | ❌ Impossible | ✅ Possible |
+| **CLI** | NO Manquant | OK `cdm-infer`, `cdm-download` |
+| **Tests** | NO Absents | OK Tests + CI multi-OS |
+| **PyPI** | NO Impossible | OK Possible |
 | **Documentation** | README basique | README + guides + API |
 | **Taille download** | 5.7 GB (tout le monorepo) | ~20 MB (CDM seul) |
 
@@ -224,12 +224,12 @@ Enhanced MimicGen for mobile manipulators...
 - **Plateformes supportées** : Linux, macOS, Windows
 - **Python versions** : 3.8-3.12
 
-## ⚠️ Notes importantes
+## WARN Notes importantes
 
 1. **xFormers warnings** : Les warnings "xFormers not available" sont normaux sur macOS. Package fonctionne correctement.
 
 2. **Versions synchronisées** :
-   - `pyproject.toml` : version 1.0.2 ✓
+   - `pyproject.toml` : version 1.0.2 OK
    - Pas de conflits
 
 3. **License** : Apache 2.0 copiée depuis le repo parent

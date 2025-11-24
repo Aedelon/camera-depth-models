@@ -101,7 +101,7 @@ Examples:
             cache_dir=str(output_dir),
             resume_download=True
         )
-        print(f"✓ Model downloaded successfully!")
+        print(f"OK Model downloaded successfully!")
         print(f"  Path: {model_path}")
         print(f"\nUsage:")
         print(f"  cdm-infer --encoder vitl --model-path {model_path} --rgb-image <rgb> --depth-image <depth>")

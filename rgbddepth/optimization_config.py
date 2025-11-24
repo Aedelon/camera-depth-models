@@ -211,10 +211,10 @@ class OptimizationConfig:
             "=== CDM Optimization Configuration ===",
             f"Device: {self.device}",
             f"Attention Backend: {self.attention_backend}",
-            f"Torch Compile: {'✓' if self.use_compile else '✗'}",
-            f"Channels Last: {'✓' if self.use_channels_last else '✗'}",
+            f"Torch Compile: {'OK' if self.use_compile else 'NO'}",
+            f"Channels Last: {'OK' if self.use_channels_last else 'NO'}",
             f"Mixed Precision: {self.mixed_precision} ({self.dtype})",
-            f"Fuse Depth Encoder: {'✓' if self.fuse_depth_encoder else '✗'}",
+            f"Fuse Depth Encoder: {'OK' if self.fuse_depth_encoder else 'NO'}",
             f"Interpolation Mode: {self.interpolation_mode}",
             "=" * 38,
         ]

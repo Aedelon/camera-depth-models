@@ -1,6 +1,6 @@
 # Quickstart - Camera Depth Models
 
-## 🚀 Démarrage en 30 secondes
+## FAST Démarrage en 30 secondes
 
 ```bash
 # 1. Install
@@ -22,7 +22,7 @@ open result.png  # macOS
 # xdg-open result.png  # Linux
 ```
 
-## 📚 Docs complètes
+## DOCS Docs complètes
 
 - **README** : [README.md](README.md)
 - **Setup complet** : [SETUP_GUIDE.md](SETUP_GUIDE.md)

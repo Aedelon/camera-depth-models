@@ -35,7 +35,7 @@ def example_auto_config():
         encoder="vitl", features=256, out_channels=[256, 512, 1024, 1024], config=config
     )
 
-    print("\n✓ Model created with automatic optimizations")
+    print("\nOK Model created with automatic optimizations")
 
 
 def example_manual_config():
@@ -81,7 +81,7 @@ def example_manual_config():
         encoder="vitl", features=256, out_channels=[256, 512, 1024, 1024], config=config
     )
 
-    print("\n✓ Model created with manual configuration")
+    print("\nOK Model created with manual configuration")
 
 
 def example_device_specific():
@@ -150,9 +150,9 @@ def example_compare_backends():
                 out_channels=[48, 96, 192, 384],
                 config=config,
             )
-            print(f"✓ {backend} backend initialized successfully")
+            print(f"OK {backend} backend initialized successfully")
         except Exception as e:
-            print(f"✗ {backend} backend failed: {e}")
+            print(f"FAIL {backend} backend failed: {e}")
 
 
 def example_full_inference():
@@ -190,7 +190,7 @@ def example_full_inference():
     pred_depth_meters = 1.0 / (pred_depth + 1e-6)
     print(f"   Depth (meters): [{pred_depth_meters.min():.3f}, {pred_depth_meters.max():.3f}]")
 
-    print("\n✓ Full inference pipeline completed successfully")
+    print("\nOK Full inference pipeline completed successfully")
 
 
 def example_memory_efficient():
@@ -243,7 +243,7 @@ def main():
         try:
             example_func()
         except Exception as e:
-            print(f"\n✗ Example '{name}' failed: {e}")
+            print(f"\nFAIL Example '{name}' failed: {e}")
             import traceback
 
             traceback.print_exc()

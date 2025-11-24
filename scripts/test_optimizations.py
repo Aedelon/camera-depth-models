@@ -49,7 +49,7 @@ def test_configuration(encoder="vitl", config=None, num_warmup=3, num_iters=10):
                 with torch.no_grad():
                     _ = model.infer_image(rgb, depth, input_size=518)
             except Exception as e:
-                print(f"  ⚠ Warmup iteration {i+1} failed: {e}")
+                print(f"  WARN Warmup iteration {i+1} failed: {e}")
                 return None
 
         # Benchmark
@@ -81,7 +81,7 @@ def test_configuration(encoder="vitl", config=None, num_warmup=3, num_iters=10):
             "success": True,
         }
 
-        print("\n✓ Test passed!")
+        print("\nOK Test passed!")
         print(f"  Mean: {result['mean']*1000:.2f}ms ± {result['std']*1000:.2f}ms")
         print(f"  Min:  {result['min']*1000:.2f}ms")
         print(f"  Max:  {result['max']*1000:.2f}ms")
@@ -90,7 +90,7 @@ def test_configuration(encoder="vitl", config=None, num_warmup=3, num_iters=10):
         return result
 
     except Exception as e:
-        print(f"\n✗ Test failed: {e}")
+        print(f"\nFAIL Test failed: {e}")
         import traceback
 
         traceback.print_exc()
@@ -136,9 +136,9 @@ def test_all_attention_backends(device="auto"):
 
     for backend, result in results.items():
         if result:
-            print(f"{backend:<15} {result['mean']*1000:>10.2f}   {'✓':<10}")
+            print(f"{backend:<15} {result['mean']*1000:>10.2f}   {'OK':<10}")
         else:
-            print(f"{backend:<15} {'N/A':>10}   {'✗':<10}")
+            print(f"{backend:<15} {'N/A':>10}   {'FAIL':<10}")
 
 
 def test_device_specific_optimizations():
