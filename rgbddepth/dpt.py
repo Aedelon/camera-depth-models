@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from torchvision.transforms import Compose
 
 from .dinov2 import DINOv2
+from .flexible_attention import FlexibleCrossAttention
 from .util.blocks import FeatureFusionBlock, _make_scratch
 from .util.transform import NormalizeImage, PrepareForNet, Resize
 
@@ -199,6 +200,7 @@ class RGBDDepth(nn.Module):
         use_bn=False,
         use_clstoken=False,
         max_depth=20.0,
+        use_xformers=False,
     ):
         super(RGBDDepth, self).__init__()
 
@@ -225,14 +227,14 @@ class RGBDDepth(nn.Module):
             sigact_out=False,
         )
 
-        # cross att
+        # cross attention with xFormers support
         num_heads = 4
         self.crossAtts = nn.ModuleList(
             [
-                nn.MultiheadAttention(self.pretrained.embed_dim, num_heads, batch_first=True),
-                nn.MultiheadAttention(self.pretrained.embed_dim, num_heads, batch_first=True),
-                nn.MultiheadAttention(self.pretrained.embed_dim, num_heads, batch_first=True),
-                nn.MultiheadAttention(self.pretrained.embed_dim, num_heads, batch_first=True),
+                FlexibleCrossAttention(
+                    self.pretrained.embed_dim, num_heads, use_xformers=use_xformers
+                )
+                for _ in range(4)
             ]
         )
 
@@ -303,11 +305,8 @@ class RGBDDepth(nn.Module):
 
         inputs = torch.cat((image, depth), dim=1)
 
-        DEVICE = (
-            "cuda"
-            if torch.cuda.is_available()
-            else "mps" if torch.backends.mps.is_available() else "cpu"
-        )
-        inputs = inputs.to(DEVICE)
+        # Use the same device as model parameters
+        device = next(self.parameters()).device
+        inputs = inputs.to(device)
 
         return inputs, (h, w)

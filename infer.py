@@ -15,10 +15,8 @@ from PIL import Image
 
 from rgbddepth.dpt import RGBDDepth
 
-# Automatically select the best available device for inference
-DEVICE = (
-    "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
-)
+# Device will be set after parsing arguments
+DEVICE = None
 
 # Model configurations for different Vision Transformer (ViT) encoder sizes
 # Each config specifies the encoder type, feature dimensions, and output channels
@@ -166,6 +164,25 @@ def parse_arguments():
     parser.add_argument("--max-depth", type=float, default=6.0, help="Maximum valid depth value")
     parser.add_argument("--image-min", type=float, default=0.1, help="Minimum valid depth value")
     parser.add_argument("--image-max", type=float, default=5.0, help="Maximum valid depth value")
+    parser.add_argument(
+        "--device",
+        type=str,
+        choices=["auto", "cuda", "mps", "cpu"],
+        default="auto",
+        help="Device to use for inference (auto=automatic selection)",
+    )
+    parser.add_argument(
+        "--no-optimize",
+        action="store_true",
+        help="Disable optimizations on CUDA (optimizations are auto-enabled on CUDA only)",
+    )
+    parser.add_argument(
+        "--precision",
+        type=str,
+        choices=["fp32", "fp16", "bf16"],
+        default="fp32",
+        help="Precision: fp32 (default), fp16 (CUDA/MPS), bf16 (CUDA only, better stability)",
+    )
     return parser.parse_args()
 
 
@@ -199,18 +216,79 @@ def validate_inputs(args):
         os.makedirs(output_dir, exist_ok=True)
 
 
-def load_model(encoder, model_path):
+def apply_optimizations(model, device, optimize=False):
+    """Apply device-specific optimizations while keeping FP32 precision.
+
+    Args:
+        model: The model to optimize
+        device: Target device ('cuda', 'mps', 'cpu')
+        optimize: Whether to apply optimizations
+
+    Returns:
+        Optimized model
+    """
+    if not optimize:
+        return model
+
+    print("\nApplying optimizations (FP32 precision maintained):")
+
+    # torch.compile (PyTorch 2.0+, works on CUDA and CPU, experimental on MPS)
+    if torch.__version__ >= "2.0":
+        if device == "cuda":
+            # Best on CUDA
+            try:
+                model = torch.compile(model, mode="max-autotune", fullgraph=False)
+                print("  ✓ torch.compile enabled (mode=max-autotune)")
+            except Exception as e:
+                print(f"  ✗ torch.compile failed: {e}")
+        elif device == "cpu":
+            # CPU benefits from compile but with different mode
+            try:
+                model = torch.compile(model, mode="default", fullgraph=False)
+                print("  ✓ torch.compile enabled (mode=default)")
+            except Exception as e:
+                print(f"  ✗ torch.compile failed: {e}")
+        elif device == "mps":
+            # MPS support is experimental for torch.compile
+            print("  ⚠ torch.compile not enabled on MPS (experimental support)")
+    else:
+        print(f"  ⚠ torch.compile requires PyTorch 2.0+ (current: {torch.__version__})")
+
+    # SDPA (Scaled Dot Product Attention) - native in PyTorch 2.0+
+    # Already used by FlexibleCrossAttention/nn.MultiheadAttention in PyTorch 2.0+
+    if torch.__version__ >= "2.0":
+        print("  ✓ SDPA (native optimized attention) available")
+
+    print()
+    return model
+
+
+def load_model(encoder, model_path, optimize=False):
     """Load and initialize the RGBD depth estimation model.
 
     Args:
         encoder: Model encoder type ('vits', 'vitb', 'vitl', 'vitg')
         model_path: Path to the model checkpoint file
+        optimize: Whether to apply optimizations
 
     Returns:
         torch.nn.Module: Loaded model in evaluation mode
     """
+    # Detect if xFormers is available (CUDA only)
+    use_xformers = False
+    if optimize and DEVICE == "cuda":
+        try:
+            import xformers
+
+            use_xformers = True
+            print("✓ xFormers detected, will be used for cross-attention")
+        except ImportError:
+            print("⚠ xFormers not installed, using SDPA (still fast)")
+
     # Initialize model with configuration for specified encoder
-    model = RGBDDepth(**model_configs[encoder])
+    config = model_configs[encoder].copy()
+    config["use_xformers"] = use_xformers
+    model = RGBDDepth(**config)
 
     # Load checkpoint and extract state dict
     checkpoint = torch.load(model_path, map_location="cpu")
@@ -228,6 +306,9 @@ def load_model(encoder, model_path):
     # Load weights and move to device
     model.load_state_dict(states, strict=False)
     model = model.to(DEVICE).eval()
+
+    # Apply optimizations if requested
+    model = apply_optimizations(model, DEVICE, optimize)
 
     print(f"Model loaded: {encoder} from {model_path}")
     return model
@@ -358,16 +439,43 @@ def inference(args):
     # Validate all input files and create output directory
     validate_inputs(args)
 
+    # Validate precision choice
+    if args.precision == "bf16" and DEVICE != "cuda":
+        print("Warning: BF16 only supported on CUDA, falling back to FP32")
+        args.precision = "fp32"
+    if args.precision == "fp16" and DEVICE == "cpu":
+        print("Warning: FP16 not recommended on CPU, falling back to FP32")
+        args.precision = "fp32"
+
     # Load the trained model
-    model = load_model(args.encoder, args.model_path)
+    model = load_model(args.encoder, args.model_path, args.optimize)
 
     # Load and preprocess input images
     rgb_src, depth_low_res, simi_depth_low_res = load_images(
         args.rgb_image, args.depth_image, args.depth_scale, 25.0
     )
 
-    # Run model inference
-    pred = model.infer_image(rgb_src, simi_depth_low_res, input_size=args.input_size)
+    # Determine autocast dtype
+    if args.precision == "fp16":
+        dtype = torch.float16
+        print("Using mixed precision: FP16")
+    elif args.precision == "bf16":
+        dtype = torch.bfloat16
+        print("Using mixed precision: BF16")
+    else:
+        dtype = None  # No autocast, full FP32
+        print("Using full precision: FP32")
+
+    # Run model inference with optional mixed precision
+    if dtype is not None:
+        # Use autocast for mixed precision
+        device_type = "cuda" if DEVICE == "cuda" else "cpu"  # MPS uses cpu context
+        with torch.amp.autocast(device_type=device_type, dtype=dtype):
+            pred = model.infer_image(rgb_src, simi_depth_low_res, input_size=args.input_size)
+    else:
+        # Full precision
+        pred = model.infer_image(rgb_src, simi_depth_low_res, input_size=args.input_size)
+
     print(f"Prediction info: shape={pred.shape}, min={pred.min():.4f}, max={pred.max():.4f}")
 
     # Convert from inverse depth back to regular depth
@@ -386,6 +494,30 @@ def inference(args):
 
 
 if __name__ == "__main__":
-    # Parse command line arguments and run inference
+    # Parse command line arguments
     args = parse_arguments()
+
+    # Set device based on user choice
+    if args.device == "auto":
+        DEVICE = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps" if torch.backends.mps.is_available() else "cpu"
+        )
+    else:
+        DEVICE = args.device
+        # Validate device availability
+        if DEVICE == "cuda" and not torch.cuda.is_available():
+            print("Error: CUDA requested but not available")
+            sys.exit(1)
+        if DEVICE == "mps" and not torch.backends.mps.is_available():
+            print("Error: MPS requested but not available")
+            sys.exit(1)
+
+    print(f"Using device: {DEVICE}")
+
+    # Auto-enable optimizations on CUDA (unless --no-optimize is set)
+    args.optimize = (DEVICE == "cuda") and not args.no_optimize
+
+    # Run inference
     inference(args)
