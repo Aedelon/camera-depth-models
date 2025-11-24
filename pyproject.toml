@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "camera-depth-models"
-version = "1.0.0"
+version = "1.0.1"
 description = "Camera Depth Models for accurate metric depth estimation from RGB-D sensors"
 readme = "README.md"
 requires-python = ">=3.8"
