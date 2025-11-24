@@ -301,12 +301,12 @@ def create_cross_attention(
         # Auto-select backend based on device
         if device_type == "cuda":
             # Try xformers, fall back to torch
-            try:
-                import xformers
+            import importlib.util
 
+            if importlib.util.find_spec("xformers") is not None:
                 backend = "xformers"
                 print("Using xformers backend for attention (GPU optimized)")
-            except ImportError:
+            else:
                 backend = "torch"
                 print("xformers not available, using torch backend")
         elif device_type == "mps":

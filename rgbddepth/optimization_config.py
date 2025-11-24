@@ -113,11 +113,11 @@ class OptimizationConfig:
         """Select optimal attention backend for device."""
         if device_type == "cuda":
             # Try xformers first, fall back to torch
-            try:
-                import xformers
+            import importlib.util
 
+            if importlib.util.find_spec("xformers") is not None:
                 return "xformers"
-            except ImportError:
+            else:
                 return "torch"
         elif device_type == "mps":
             # MPS has poor MultiheadAttention performance
@@ -133,9 +133,9 @@ class OptimizationConfig:
                     f"xformers backend only supports CUDA, not {device_type}. "
                     f"Use 'torch' or 'manual' backend instead."
                 )
-            try:
-                import xformers
-            except ImportError:
+            import importlib.util
+
+            if importlib.util.find_spec("xformers") is None:
                 raise ImportError(
                     "xformers is not installed. Install with: "
                     "pip install xformers\n"
