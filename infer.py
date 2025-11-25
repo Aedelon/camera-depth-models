@@ -290,11 +290,14 @@ def load_model(encoder, model_path, optimize=False):
     use_xformers = False
     if optimize and DEVICE == "cuda":
         try:
-            import xformers
+            import importlib.util
 
-            use_xformers = True
-            print("✓ xFormers detected, will be used for cross-attention")
-        except ImportError:
+            if importlib.util.find_spec("xformers") is not None:
+                use_xformers = True
+                print("✓ xFormers detected, will be used for cross-attention")
+        except (ImportError, ValueError):
+            pass
+        if not use_xformers:
             print("⚠ xFormers not installed, using SDPA (still fast)")
 
     # Initialize model with configuration for specified encoder
