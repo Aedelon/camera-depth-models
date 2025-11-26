@@ -26,7 +26,7 @@ Optimized Python package for RGB-D depth refinement using Vision Transformer enc
 
 [![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/Aedelon/rgbd-depth)
 
-Try **rgbd-depth** directly in your browser with our interactive Gradio demo—no installation required.
+Try **rgbd-depth** directly in your browser with our interactive Gradio demo—no installation required. Upload your images and refine depth maps instantly.
 
 **Available on Hugging Face Spaces:** Upload your RGB and depth images, adjust parameters (camera model, precision, resolution), and get refined depth maps instantly. Models are automatically downloaded from Hugging Face Hub on first use.
 
