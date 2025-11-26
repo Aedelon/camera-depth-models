@@ -108,7 +108,7 @@ exclude = ["tests*", "docs*", "example_data*"]
 
 [tool.black]
 line-length = 100
-target-version = ['py310', 'py311', 'py312', 'py313']
+target-version = ['py310', 'py311', 'py312']
 include = '\.pyi?$'
 
 [tool.isort]

@@ -98,7 +98,9 @@ class FlexibleCrossAttention(nn.MultiheadAttention):
 
             # Apply xFormers memory-efficient attention
             # This is significantly faster and uses less memory than standard attention
-            out = xops.memory_efficient_attention(q, k, v)
+            # Scale is 1/sqrt(head_dim) as per standard scaled dot-product attention
+            scale = self.head_dim**-0.5
+            out = xops.memory_efficient_attention(q, k, v, scale=scale)
 
             # Reshape back: [B, N, H, C//H] -> [B, N, C]
             out = out.reshape(B, N, C)
