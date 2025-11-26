@@ -4,6 +4,8 @@
 
 """Gradio demo for rgbd-depth on Hugging Face Spaces."""
 
+from pathlib import Path
+
 import gradio as gr
 import numpy as np
 import torch
@@ -14,42 +16,91 @@ from rgbddepth import RGBDDepth
 # Global model cache
 MODELS = {}
 
+# Model mappings from HuggingFace (all are vitl encoder)
+# Format: "camera_model": ("repo_id", "checkpoint_filename")
+HF_MODELS = {
+    "d435": ("depth-anything/camera-depth-model-d435", "cdm_d435.ckpt"),
+    "d405": ("depth-anything/camera-depth-model-d405", "cdm_d405.ckpt"),
+    "l515": ("depth-anything/camera-depth-model-l515", "cdm_l515.ckpt"),
+    "zed2i": ("depth-anything/camera-depth-model-zed2i", "cdm_zed2i.ckpt"),
+}
 
-def load_model(encoder: str, use_xformers: bool = False):
-    """Load model with caching."""
-    cache_key = f"{encoder}_{use_xformers}"
+# Default model
+DEFAULT_MODEL = "d435"
+
+
+def download_model(camera_model: str = DEFAULT_MODEL):
+    """Download model from HuggingFace Hub."""
+    try:
+        from huggingface_hub import hf_hub_download
+
+        repo_id, filename = HF_MODELS.get(camera_model, HF_MODELS[DEFAULT_MODEL])
+        print(f"📥 Downloading {camera_model} model from {repo_id}/{filename}...")
+
+        # Download the checkpoint
+        checkpoint_path = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir=".cache")
+
+        print(f"✓ Downloaded to {checkpoint_path}")
+        return checkpoint_path
+
+    except Exception as e:
+        print(f"❌ Failed to download model: {e}")
+        return None
+
+
+def load_model(camera_model: str = DEFAULT_MODEL, use_xformers: bool = False):
+    """Load model with automatic download from HuggingFace."""
+    cache_key = f"{camera_model}_{use_xformers}"
 
     if cache_key not in MODELS:
-        # Model configs
-        configs = {
-            "vits": {"encoder": "vits", "features": 64, "out_channels": [48, 96, 192, 384]},
-            "vitb": {"encoder": "vitb", "features": 128, "out_channels": [96, 192, 384, 768]},
-            "vitl": {"encoder": "vitl", "features": 256, "out_channels": [256, 512, 1024, 1024]},
-            "vitg": {"encoder": "vitg", "features": 384, "out_channels": [1536, 1536, 1536, 1536]},
+        # All HF models use vitl encoder
+        config = {
+            "encoder": "vitl",
+            "features": 256,
+            "out_channels": [256, 512, 1024, 1024],
+            "use_xformers": use_xformers,
         }
-
-        config = configs[encoder].copy()
-        config["use_xformers"] = use_xformers
 
         model = RGBDDepth(**config)
 
-        # Try to load weights if checkpoint exists
-        try:
-            checkpoint = torch.load(f"checkpoints/{encoder}.pt", map_location="cpu")
-            if "model" in checkpoint:
-                states = {k[7:]: v for k, v in checkpoint["model"].items()}
-            elif "state_dict" in checkpoint:
-                states = {k[9:]: v for k, v in checkpoint["state_dict"].items()}
-            else:
-                states = checkpoint
+        # Try to load weights
+        checkpoint_path = None
 
-            model.load_state_dict(states, strict=False)
-            print(f"✓ Loaded checkpoint for {encoder}")
-        except FileNotFoundError:
-            print(f"⚠ No checkpoint found for {encoder}, using random weights (demo only)")
+        # 1. Try local checkpoints/ directory first
+        local_path = Path(f"checkpoints/{camera_model}.pt")
+        if local_path.exists():
+            checkpoint_path = str(local_path)
+            print(f"✓ Using local checkpoint: {checkpoint_path}")
+        else:
+            # 2. Download from HuggingFace
+            checkpoint_path = download_model(camera_model)
 
-        # Move to GPU if available
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        # Load checkpoint if available
+        if checkpoint_path:
+            try:
+                checkpoint = torch.load(checkpoint_path, map_location="cpu")
+                if "model" in checkpoint:
+                    states = {k[7:]: v for k, v in checkpoint["model"].items()}
+                elif "state_dict" in checkpoint:
+                    states = {k[9:]: v for k, v in checkpoint["state_dict"].items()}
+                else:
+                    states = checkpoint
+
+                model.load_state_dict(states, strict=False)
+                print(f"✓ Loaded checkpoint for {camera_model}")
+            except Exception as e:
+                print(f"⚠ Failed to load checkpoint: {e}, using random weights")
+        else:
+            print(f"⚠ No checkpoint available for {camera_model}, using random weights (demo only)")
+
+        # Move to GPU if available (CUDA or MPS for macOS)
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+
         model = model.to(device).eval()
 
         MODELS[cache_key] = model
@@ -60,7 +111,7 @@ def load_model(encoder: str, use_xformers: bool = False):
 def process_depth(
     rgb_image: np.ndarray,
     depth_image: np.ndarray,
-    encoder: str = "vitl",
+    camera_model: str = DEFAULT_MODEL,
     input_size: int = 518,
     depth_scale: float = 1000.0,
     max_depth: float = 25.0,
@@ -73,7 +124,7 @@ def process_depth(
     Args:
         rgb_image: RGB image as numpy array [H, W, 3]
         depth_image: Depth image as numpy array [H, W] or [H, W, 3]
-        encoder: Model encoder type
+        camera_model: Camera model to use (d435, d405, l515, zed2i)
         input_size: Input size for inference
         depth_scale: Scale factor for depth values
         max_depth: Maximum valid depth value
@@ -105,7 +156,7 @@ def process_depth(
         simi_depth[valid_mask] = 1.0 / depth_normalized[valid_mask]
 
         # Load model
-        model = load_model(encoder, use_xformers and torch.cuda.is_available())
+        model = load_model(camera_model, use_xformers and torch.cuda.is_available())
         device = next(model.parameters()).device
 
         # Determine precision
@@ -116,6 +167,15 @@ def process_depth(
         else:
             dtype = None  # FP32
 
+        # DEBUG: Print input stats
+        print(f"[DEBUG] depth_image raw: min={depth_image.min():.1f}, max={depth_image.max():.1f}")
+        print(
+            f"[DEBUG] depth_normalized: min={depth_normalized[depth_normalized>0].min():.4f}, max={depth_normalized.max():.4f}"
+        )
+        print(
+            f"[DEBUG] simi_depth: min={simi_depth[simi_depth>0].min():.4f}, max={simi_depth.max():.4f}"
+        )
+
         # Run inference
         if dtype is not None:
             device_type = "cuda" if device.type == "cuda" else "cpu"
@@ -124,8 +184,14 @@ def process_depth(
         else:
             pred = model.infer_image(rgb_image, simi_depth, input_size=input_size)
 
+        # DEBUG: Print prediction stats before reconversion
+        print(f"[DEBUG] pred (inverse depth): min={pred[pred>0].min():.4f}, max={pred.max():.4f}")
+
         # Convert from inverse depth to depth
         pred = np.where(pred > 1e-8, 1.0 / pred, 0.0)
+
+        # DEBUG: Print final depth stats
+        print(f"[DEBUG] pred (depth): min={pred[pred>0].min():.4f}, max={pred.max():.4f}")
 
         # Colorize for visualization
         try:
@@ -148,14 +214,16 @@ def process_depth(
 
         except ImportError:
             # Fallback to grayscale if matplotlib not available
-            pred_norm = ((pred - pred.min()) / (pred.max() - pred.min() + 1e-8) * 255).astype(np.uint8)
-            output_image = Image.fromarray(pred_norm, mode='L').convert('RGB')
+            pred_norm = ((pred - pred.min()) / (pred.max() - pred.min() + 1e-8) * 255).astype(
+                np.uint8
+            )
+            output_image = Image.fromarray(pred_norm, mode="L").convert("RGB")
 
         # Create info message
         info = f"""
 ✅ **Refinement complete!**
 
-**Model:** {encoder.upper()}
+**Camera Model:** {camera_model.upper()}
 **Precision:** {precision.upper()}
 **Device:** {device.type.upper()}
 **Input size:** {input_size}px
@@ -171,16 +239,17 @@ def process_depth(
 
 # Create Gradio interface
 with gr.Blocks(title="rgbd-depth Demo") as demo:
-    gr.Markdown("""
+    gr.Markdown(
+        """
     # 🎨 rgbd-depth: RGB-D Depth Refinement
 
     High-quality depth map refinement using Vision Transformers. Based on [ByteDance's camera-depth-models](https://manipulation-as-in-simulation.github.io/).
 
-    ⚠️ **Note:** This demo uses random weights for demonstration. For real results:
-    1. Download checkpoints from [Hugging Face](https://huggingface.co/collections/depth-anything/camera-depth-models-68b521181dedd223f4b020db)
-    2. Place in `checkpoints/` directory
-    3. Restart the app
-    """)
+    📥 **Models are automatically downloaded from Hugging Face on first use!**
+
+    Choose your camera model (D435, D405, L515, or ZED 2i) and the trained weights will be downloaded automatically.
+    """
+    )
 
     with gr.Row():
         with gr.Column():
@@ -199,11 +268,11 @@ with gr.Blocks(title="rgbd-depth Demo") as demo:
             )
 
             with gr.Accordion("⚙️ Advanced Settings", open=False):
-                encoder_choice = gr.Radio(
-                    choices=["vits", "vitb", "vitl", "vitg"],
-                    value="vitl",
-                    label="Encoder Model",
-                    info="Larger = better quality but slower",
+                camera_choice = gr.Dropdown(
+                    choices=["d435", "d405", "l515", "zed2i"],
+                    value=DEFAULT_MODEL,
+                    label="Camera Model",
+                    info="Choose the camera model for trained weights (auto-downloads from HF)",
                 )
 
                 input_size = gr.Slider(
@@ -235,7 +304,7 @@ with gr.Blocks(title="rgbd-depth Demo") as demo:
                 )
 
                 use_xformers = gr.Checkbox(
-                    value=False,
+                    value=False,  # Set to True to test xFormers by default
                     label="Use xFormers (CUDA only)",
                     info="~8% faster on CUDA with xFormers installed",
                 )
@@ -276,7 +345,7 @@ with gr.Blocks(title="rgbd-depth Demo") as demo:
         inputs=[
             rgb_input,
             depth_input,
-            encoder_choice,
+            camera_choice,
             input_size,
             depth_scale,
             max_depth,
@@ -288,7 +357,8 @@ with gr.Blocks(title="rgbd-depth Demo") as demo:
     )
 
     # Footer
-    gr.Markdown("""
+    gr.Markdown(
+        """
     ---
 
     ### 🔗 Links
@@ -316,7 +386,8 @@ with gr.Blocks(title="rgbd-depth Demo") as demo:
     ---
 
     Built with ❤️ by [Aedelon](https://github.com/Aedelon) | Powered by [Gradio](https://gradio.app)
-    """)
+    """
+    )
 
 if __name__ == "__main__":
     demo.launch()
