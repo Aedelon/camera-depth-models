@@ -5,9 +5,16 @@ Optimized Python package for RGB-D depth refinement using Vision Transformer enc
 [![Tests](https://github.com/Aedelon/camera-depth-models/actions/workflows/test.yml/badge.svg)](https://github.com/Aedelon/camera-depth-models/actions/workflows/test.yml)
 [![PyPI version](https://img.shields.io/pypi/v/rgbd-depth.svg)](https://pypi.org/project/rgbd-depth/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/rgbd-depth.svg)](https://pypi.org/project/rgbd-depth/)
+[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/Aedelon/rgbd-depth)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+
+## 🎮 Try it Online
+
+[![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/Aedelon/rgbd-depth)
+
+Try rgbd-depth directly in your browser with our interactive Gradio demo! No installation required.
 
 ## Overview
 

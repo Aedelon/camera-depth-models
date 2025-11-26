@@ -1,0 +1,48 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'rgbddepth/**'
+      - 'app.py'
+      - 'requirements.txt'
+      - 'README.md'
+      - '.github/workflows/deploy-hf.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Hugging Face Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+          # Clone HF Space repo
+          git clone https://huggingface.co/spaces/Aedelon/rgbd-depth hf-space
+          cd hf-space
+
+          # Configure HF git with token
+          git remote set-url origin https://user:$HF_TOKEN@huggingface.co/spaces/Aedelon/rgbd-depth
+
+          # Copy necessary files from GitHub repo
+          cp ../README.md .
+          cp ../requirements.txt .
+          cp ../app.py .
+          cp -r ../rgbddepth .
+
+          # Commit and push if there are changes
+          git add .
+          git diff --quiet && git diff --staged --quiet || (
+            git commit -m "Sync from GitHub: ${{ github.sha }}"
+            git push
+          )
