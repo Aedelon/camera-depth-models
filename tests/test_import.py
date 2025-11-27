@@ -9,7 +9,7 @@ import pytest
 
 def test_import_main_modules():
     """Test that main modules can be imported."""
-    from rgbddepth import DinoVisionTransformer, RGBDDepth, __version__
+    from rgbddepth import DinoVisionTransformer, RGBDDepth
 
     assert RGBDDepth is not None
     assert DinoVisionTransformer is not None
