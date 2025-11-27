@@ -1,4 +1,5 @@
 # Hugging Face Spaces requirements
+# Updated 2025-11-27: Force rebuild with Gradio 4.44.1+
 torch>=2.0.0
 torchvision>=0.15.0
 opencv-python>=4.5.0
