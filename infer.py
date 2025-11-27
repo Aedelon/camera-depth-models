@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from PIL import Image
 
-from rgbddepth.dpt import RGBDDepth
+from rgbddepth import RGBDDepth
 
 # Optional matplotlib import for visualization
 try:
