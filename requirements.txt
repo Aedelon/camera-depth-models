@@ -1,17 +1,14 @@
 # Hugging Face Spaces requirements
-# Generated from pyproject.toml - DO NOT install rgbd-depth itself (causes circular dependency)
-
-# Core dependencies (from pyproject.toml)
 torch>=2.0.0
 torchvision>=0.15.0
 opencv-python>=4.5.0
 numpy>=1.20.0
 Pillow>=9.0.0
 
-# Gradio demo (pin to 4.44.1+ to avoid JSON schema bug in 4.44.0)
+# Gradio demo - pin both to avoid JSON schema bug
 gradio>=4.44.1,<5.0.0
+gradio_client>=1.3.0,<2.0.0
 matplotlib>=3.5.0
 
 # Model downloads from HuggingFace
-# Pin to <1.0 to keep HfFolder (required by Gradio's oauth module)
 huggingface-hub>=0.20.0,<1.0.0
