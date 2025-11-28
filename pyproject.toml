@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "rgbd-depth"
 version = "1.0.3"
 description = "Optimized RGB-D depth refinement using Vision Transformers with CUDA, MPS, and CPU support"
-readme = "README.md"
+readme = "README_PYPI.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 authors = [
@@ -18,27 +18,47 @@ maintainers = [
 ]
 keywords = [
     "depth-estimation",
+    "depth-refinement",
     "rgbd",
+    "rgb-d",
     "vision-transformer",
+    "vit",
+    "dino",
+    "dinov2",
     "pytorch",
     "computer-vision",
     "robotics",
     "sim-to-real",
+    "sim2real",
+    "realsense",
+    "depth-camera",
+    "3d-vision",
+    "depth-map",
     "xformers",
-    "mixed-precision"
+    "mixed-precision",
+    "cuda",
+    "apple-silicon",
+    "mps"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
+    "Intended Audience :: Education",
     "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Scientific/Engineering :: Image Processing"
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Environment :: GPU :: NVIDIA CUDA",
+    "Framework :: Jupyter",
+    "Natural Language :: English"
 ]
 
 dependencies = [

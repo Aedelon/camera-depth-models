@@ -1,4 +1,4 @@
----
+D---
 title: rgbd-depth
 emoji: 🎨
 colorFrom: blue
@@ -11,17 +11,54 @@ pinned: false
 license: apache-2.0
 ---
 
-# Camera Depth Models (CDM)
+# 🎨 RGBD-Depth: Real-time Depth Refinement
 
-Optimized Python package for RGB-D depth refinement using Vision Transformer encoders. This implementation is aligned with the [ByteDance CDM reference implementation](https://github.com/bytedance/camera-depth-models) with additional performance optimizations for CUDA, MPS (Apple Silicon), and CPU.
+<div align="center">
+
+**Transform noisy depth camera data into clean, simulation-quality depth maps**
 
 [![Tests](https://github.com/Aedelon/rgbd-depth/actions/workflows/test.yml/badge.svg)](https://github.com/Aedelon/rgbd-depth/actions/workflows/test.yml)
 [![PyPI version](https://img.shields.io/pypi/v/rgbd-depth.svg)](https://pypi.org/project/rgbd-depth/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/rgbd-depth.svg)](https://pypi.org/project/rgbd-depth/)
+[![GitHub stars](https://img.shields.io/github/stars/Aedelon/rgbd-depth.svg?style=social)](https://github.com/Aedelon/rgbd-depth)
 [![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/Aedelon/rgbd-depth)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+[![Paper](https://img.shields.io/badge/📄%20Paper-ByteDance%20CDM-orange)](https://github.com/bytedance/camera-depth-models)
+
+![Demo](assets/demo.png)
+
+**[Try Online Demo](https://huggingface.co/spaces/Aedelon/rgbd-depth)** • **[Quickstart Colab](https://colab.research.google.com/github/Aedelon/camera-depth-models/blob/main/quickstart_colab.ipynb)** • **[Installation](#installation)** • **[Usage](#quick-start)** • **[Models](#pretrained-models)**
+
+</div>
+
+---
+
+## 🚀 What is RGBD-Depth?
+
+Optimized Python package for **RGB-D depth refinement** using Vision Transformer encoders. This implementation is aligned with the [ByteDance CDM reference implementation](https://github.com/bytedance/camera-depth-models) with additional performance optimizations for CUDA, MPS (Apple Silicon), and CPU.
+
+## ⚡ Performance & Results
+
+**Inference Speed** (RealSense D435, 640×480, M2 Max / RTX 3090):
+
+| Device | Precision | Time | vs Reference |
+|--------|-----------|------|--------------|
+| **CUDA + xFormers** | FP32 | **0.95s** | 🚀 ~8% faster |
+| **CUDA + xFormers** | FP16 | **0.52s** | 🚀 ~2× faster |
+| **Apple M2 Max (MPS)** | FP32 | **1.34s** | ✅ Native support |
+| **CPU (16 cores)** | FP32 | **13.37s** | ✅ No GPU needed |
+
+**Quality Metrics:**
+- ✅ **Pixel-perfect** alignment with ByteDance reference (0 pixel diff verified)
+- ✅ **Metric depth** accuracy preserved (meters)
+- ✅ **Compatible** with all original checkpoints
+
+**Real-world improvements:**
+- 📉 **Noise reduction**: Up to 80% cleaner depth maps
+- 🎯 **Edge preservation**: Sharp object boundaries maintained
+- 🔧 **Sensor-specific**: Models trained per camera (D405, D435, L515, ZED 2i, Kinect)
 
 ## 🎮 Try it Online
 
@@ -111,6 +148,28 @@ The easiest way to try rgbd-depth is via **Hugging Face Spaces**—completely fr
 For production workflows or faster inference, use the local installation below.
 
 > **📌 Note:** This README is optimized for [GitHub](https://github.com/Aedelon/rgbd-depth), [PyPI](https://pypi.org/project/rgbd-depth/), and [Hugging Face Spaces](https://huggingface.co/spaces/Aedelon/rgbd-depth). The YAML metadata (top of file) is auto-detected by HF Spaces and not displayed.
+
+## 🎯 Use Cases
+
+**Robotics & Manipulation**
+- 🤖 **Sim-to-Real Transfer**: Train robot policies in simulation, deploy on real hardware with clean depth
+- 🦾 **Grasping**: Accurate object boundaries for pick-and-place tasks
+- 🚗 **Navigation**: Obstacle detection with metric depth for path planning
+
+**Computer Vision**
+- 🎥 **AR/VR**: Real-time depth refinement for mixed reality applications
+- 📸 **3D Reconstruction**: Clean depth maps for photogrammetry and SLAM
+- 🎨 **Portrait Mode**: Professional depth-of-field effects on mobile devices
+
+**Research & Development**
+- 🔬 **Benchmarking**: Consistent depth quality across camera types
+- 📊 **Dataset Creation**: Generate clean training data from noisy sensors
+- 🧪 **Prototyping**: Quick iteration with HuggingFace Spaces demo
+
+**Production Systems**
+- 🏭 **Quality Control**: Precise measurements for automated inspection
+- 📦 **Logistics**: Volume estimation and bin picking
+- 🏥 **Medical Imaging**: Enhanced depth perception for surgical robots
 
 ## Installation
 

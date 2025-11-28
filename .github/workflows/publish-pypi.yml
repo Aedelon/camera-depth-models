@@ -42,6 +42,11 @@ jobs:
             exit 1
           fi
 
+      - name: Generate README_PYPI.md (without HF YAML frontmatter)
+        run: |
+          tail -n +13 README.md > README_PYPI.md
+          echo "✅ README_PYPI.md generated ($(wc -l < README_PYPI.md) lines)"
+
       - name: Build package
         run: python -m build
 

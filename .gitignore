@@ -156,3 +156,13 @@ cython_debug/
 *.png
 *.jpg
 output.*
+README_PYPI.md
+
+# Marketing/strategy files (local only)
+VIRAL_STRATEGY.md
+AWESOME_LISTS_SUBMISSIONS.md
+SOCIAL_MEDIA_TEMPLATES.md
+
+# Exception: keep assets for documentation
+!assets/*.png
+!assets/*.jpg
